@@ -2,6 +2,18 @@ import streamlit as st
 import tempfile
 import os
 from datetime import datetime
+
+MESES = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+    5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+    9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+}
+
+def _build_filename(patient: str) -> str:
+    now = datetime.now()
+    nombre = patient.strip().replace(" ", "") if patient.strip() else "Paciente"
+    fecha = f"{now.day:02d}{MESES[now.month]}{now.year}_{now.strftime('%H%M')}"
+    return f"receta_{nombre}_{fecha}.pdf"
 from pdf_generator import generate_prescription_pdf
 
 st.set_page_config(
@@ -148,7 +160,7 @@ if st.button("📄 Generar PDF", type="primary", use_container_width=True):
             with open(tmp_path, "rb") as f:
                 pdf_bytes = f.read()
 
-            filename = f"receta_{datetime.today().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filename = _build_filename(patient)
             st.success("¡PDF generado exitosamente!")
             st.download_button(
                 label="⬇️ Descargar receta",

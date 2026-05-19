@@ -263,7 +263,12 @@ class PrescriptionApp(tk.Tk):
             return
 
         # Ask where to save
-        default_name = f"receta_{datetime.today().strftime('%Y%m%d_%H%M%S')}.pdf"
+        MESES = {1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",5:"Mayo",6:"Junio",
+                 7:"Julio",8:"Agosto",9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"}
+        now = datetime.now()
+        nombre = data["patient"].replace(" ", "") if data["patient"] else "Paciente"
+        fecha = f"{now.day:02d}{MESES[now.month]}{now.year}_{now.strftime('%H%M')}"
+        default_name = f"receta_{nombre}_{fecha}.pdf"
         path = filedialog.asksaveasfilename(
             defaultextension=".pdf",
             filetypes=[("PDF files", "*.pdf")],
