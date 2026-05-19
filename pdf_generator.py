@@ -19,11 +19,7 @@ COLOR_BRAND  = HexColor("#2B1FA8")       # azul marca (encabezado secundario)
 
 
 def _draw_border(c, width, height):
-    """Dibuja el borde morado alrededor de la página."""
-    margin = 28
-    c.setStrokeColor(COLOR_BORDER)
-    c.setLineWidth(2.5)
-    c.rect(margin, margin, width - 2 * margin, height - 2 * margin, stroke=1, fill=0)
+    pass
 
 
 def _draw_logo(c, width, height):
@@ -35,15 +31,15 @@ def _draw_logo(c, width, height):
     logo_w = 5.5 * cm
     logo_h = logo_w * (1037 / 4455)  # mantener proporción original
 
-    x = width - logo_w - 2.8 * cm
-    y = 1.2 * cm
+    x = width - logo_w - 1.0 * cm
+    y = 0.7 * cm
 
     c.drawImage(logo_path, x, y, width=logo_w, height=logo_h, mask="auto")
 
 
 def _draw_header_info(c, data, width, height):
     """Dibuja fecha, paciente y diagnóstico en la parte superior de la página."""
-    top_y = height - 2.2 * cm
+    top_y = height - 3.2 * cm
     left_x = 3.2 * cm
 
     c.setFont("Helvetica", 9)
@@ -61,6 +57,15 @@ def _draw_header_info(c, data, width, height):
         c.drawString(left_x, top_y - i * 0.5 * cm, text)
 
 
+def _draw_title(c, width, height):
+    """Dibuja el título 'Fórmula Médica' centrado en la parte superior."""
+    c.setFont("Helvetica-Bold", 18)
+    c.setFillColor(COLOR_TEXT)
+    title = "Fórmula Médica"
+    title_w = c.stringWidth(title, "Helvetica-Bold", 18)
+    c.drawString((width - title_w) / 2, height - 2.0 * cm, title)
+
+
 def _draw_medications(c, medications, width, height):
     """Dibuja la lista de medicamentos en el área central de la receta."""
     left_x = 3.2 * cm
@@ -69,16 +74,16 @@ def _draw_medications(c, medications, width, height):
 
     y = start_y
 
-    for med in medications:
+    for idx, med in enumerate(medications, start=1):
         generic = med.get("generic", "")
         brand = med.get("brand", "")
         form_text = med.get("form", "")
         instructions = med.get("instructions", "")
 
-        # Nombre genérico — negrita
+        # Número + nombre genérico — negrita
         c.setFont("Helvetica-Bold", 13)
         c.setFillColor(COLOR_TEXT)
-        c.drawString(left_x, y, generic)
+        c.drawString(left_x, y, f"{idx}. {generic}")
         y -= 0.55 * cm
 
         # Nombre comercial (si existe)
@@ -95,11 +100,14 @@ def _draw_medications(c, medications, width, height):
             c.drawString(left_x, y, form_text)
             y -= 0.5 * cm
 
+        # Espacio extra antes de instrucciones
+        y -= 0.25 * cm
+
         # Instrucciones — siempre se muestra
         if instructions:
             c.setFont("Helvetica-Oblique", 11)
             c.setFillColor(COLOR_TEXT)
-            c.drawString(left_x, y, instructions)
+            c.drawString(left_x + 0.5 * cm, y, instructions)
             y -= 0.5 * cm
 
         # Espacio entre medicamentos
@@ -125,6 +133,7 @@ def generate_prescription_pdf(output_path: str, data: dict):
     c.rect(0, 0, width, height, stroke=0, fill=1)
 
     _draw_border(c, width, height)
+    _draw_title(c, width, height)
     _draw_header_info(c, data, width, height)
     _draw_medications(c, data.get("medications", []), width, height)
     _draw_logo(c, width, height)
